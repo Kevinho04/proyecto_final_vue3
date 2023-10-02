@@ -51,6 +51,8 @@
           <v-list-item prepend-icon="mdi-home" to="/" class="yellow--text text--darken-4">Inicio</v-list-item>
           <v-list-item prepend-icon="mdi-food" to="/menu" class="yellow--text text--darken-4">Menú</v-list-item>
           <v-list-item prepend-icon="mdi-account-tie" to="/perfil" class="yellow--text text--darken-4">Perfil</v-list-item>
+          <v-list-item prepend-icon="mdi-equalizer" to="/ventas" class="yellow--text text--darken-4">Pedidos</v-list-item>
+          <v-list-item prepend-icon="mdi-account" to="/registrousuarios" class="yellow--text text--darken-4">Usuarios</v-list-item>
         </v-list>
       </v-navigation-drawer>
     </v-layout>
