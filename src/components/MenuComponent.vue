@@ -1,71 +1,74 @@
 <template>
-    <v-container class="text-center">
-      <v-card elevation="5">
-        <v-card-title class="headline">Menú de Comidas Rápidas</v-card-title>
-      </v-card>
-      <v-card elevation="0" class="mt-4">
-        <!-- Categorías -->
-        <v-row justify="center">
-          <v-col
-            cols="12"
-            sm="6"
-            md="4"
-            lg="3"
-            v-for="(category, index) in menuItems"
-            :key="index"
-          >
-            <v-card class="ma-2">
-              <v-card-title class="headline">{{ category.name }}</v-card-title>
-              <v-row>
-                <v-col
-                  cols="12"
-                  v-for="(menuItem, itemIndex) in category.items"
-                  :key="itemIndex"
-                >
-                  <v-card>
-                    <v-img
-                      :src="menuItem.image"
-                      :alt="menuItem.name"
-                      max-width="300"
-                      max-height="300"
-                    ></v-img>
-                    <v-card-title class="headline">{{ menuItem.name }}</v-card-title>
-                    <v-card-subtitle>{{ menuItem.description }}</v-card-subtitle>
-                    <v-card-actions>
-                      <v-btn icon @click="addItemToCart(menuItem)">
-                        <v-icon>mdi-plus</v-icon>
-                      </v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-col>
-              </v-row>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-card>
-      <v-card elevation="5" class="mt-4">
-        <v-card-title class="headline">Carrito de Compras</v-card-title>
-        <v-list>
-          <v-list-item v-for="(cartItem, index) in cart" :key="index">
-            {{ cartItem.name }} - {{ cartItem.quantity }} x ${{ cartItem.price }}
-            <v-btn icon @click="removeItemFromCart(cartItem)">
-              <v-icon>mdi-delete</v-icon>
-            </v-btn>
-          </v-list-item>
-        </v-list>
-        <v-card-actions>
-          Total: ${{ calculateTotal() }}
-        </v-card-actions>
-      </v-card>
-    </v-container>
-  </template>
-  
+  <v-container class="text-center">
+    <v-card elevation="5">
+      <v-card-title class="headline">Menú de Comidas Rápidas</v-card-title>
+    </v-card>
+    <v-card elevation="0" class="mt-4">
+      <!-- Categorías -->
+      <v-row justify="center">
+        <v-col
+          cols="12"
+          sm="6"
+          md="4"
+          lg="3"
+          v-for="(category, index) in menuItems"
+          :key="index"
+        >
+          <v-card class="ma-2">
+            <v-card-title class="headline">{{ category.name }}</v-card-title>
+            <v-row>
+              <v-col
+                cols="12"
+                v-for="(menuItem, itemIndex) in category.items"
+                :key="itemIndex"
+              >
+                <v-card class="menu-item-card zoom-image">
+                  <v-img
+                    :src="menuItem.image"
+                    :alt="menuItem.name"
+                    max-width="300"
+                    max-height="300"
+                  ></v-img>
+                  <v-card-title class="headline">{{ menuItem.name }}</v-card-title>
+                  <v-card-subtitle>{{ menuItem.description }}</v-card-subtitle>
+                  <v-card-actions>
+                    <v-btn icon @click="addItemToCart(menuItem)">
+                      <v-icon>mdi-plus</v-icon>
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-card>
+    <v-card elevation="5" class="mt-4">
+      <v-card-title class="headline">Carrito de Compras</v-card-title>
+      <v-list>
+        <v-list-item v-for="(cartItem, index) in cart" :key="index">
+          {{ cartItem.name }} - {{ cartItem.quantity }} x ${{ cartItem.price }}
+          <v-btn icon @click="removeItemFromCart(cartItem)">
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
+        </v-list-item>
+      </v-list>
+      <v-card-actions>
+        Total: ${{ calculateTotal() }}
+       
+      </v-card-actions>
+    </v-card>
+  </v-container>
+  <v-btn color="blue-lighten-1" to="/login">Realizar Pedido</v-btn>
+</template>
+ 
   <script>
   export default {
     name: 'MenuComidasRapidas',
     data() {
       return {
         menuItems: [
+         
           {
             name: 'HAMBURGUESAS',
             items: [
@@ -159,6 +162,7 @@
       };
     },
     methods: {
+     
       addItemToCart(menuItem) {
         // Buscar si el plato ya está en el carrito
         const cartItem = this.cart.find(item => item.name === menuItem.name);
@@ -188,7 +192,7 @@
     },
   };
   </script>
-  
+ 
   <style scoped>
   .menu-card {
     background-color: #f5f5f5;
@@ -196,14 +200,14 @@
     border-radius: 10px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   }
-  
+ 
   .category-card {
     background-color: #fff;
     border: 1px solid #e0e0e0;
     border-radius: 5px;
     padding: 10px;
   }
-  
+ 
   .menu-item-card {
     background-color: #fff;
     border: 1px solid #e0e0e0;
@@ -212,27 +216,39 @@
     transition: transform 0.2s;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
   }
-  
+ 
   .menu-item-card:hover {
     transform: translateY(-5px);
   }
-  
+ 
   .menu-item-title {
     font-size: 1.2rem;
     color: #333;
   }
-  
+ 
   .menu-item-description {
     font-size: 0.9rem;
     color: #666;
   }
-  
+ 
   .cart-card {
     background-color: #f5f5f5;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   }
+
+ 
+/* Agrega la animación de zoom invertido */
+.zoom-image {
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Establece el zoom invertido en el hover */
+.zoom-image:hover {
+  transform: scale(1.1);
+}
+
+/* Agrega tus estilos CSS adicionales aquí si es necesario */
   </style>
-  
   

@@ -13,13 +13,17 @@
         </template>
 
         <template v-slot:prepend>
-          <v-app-bar-nav-icon></v-app-bar-nav-icon>
+          <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
         </template>
+        
         <v-app-bar-title class="font-weight-bold yellow--text text--darken-4">Grilled Burger</v-app-bar-title>
+        
         <v-img
-            src="../assets/LogoGrilled.png"
-          ></v-img>
+          src="../assets/LogoGrilled.png"
+        ></v-img>
+        
         <v-spacer></v-spacer>
+        
         <v-btn icon to="/login">
           <v-icon class="yellow--text text--darken-4">mdi-account-multiple</v-icon>
         </v-btn>
@@ -32,6 +36,7 @@
       </v-main>
 
       <v-navigation-drawer
+        v-model="drawer"
         expand-on-hover
         rail
         color="orange lighten-3"
@@ -62,6 +67,11 @@
 <script>
 export default {
   name: 'PruebaC',
+  data() {
+    return {
+      drawer: false // Inicialmente, el cajón estará oculto
+    };
+  }
 };
 </script>
 

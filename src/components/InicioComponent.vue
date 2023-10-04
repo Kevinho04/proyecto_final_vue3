@@ -3,7 +3,7 @@
     <v-row>
       <v-col cols="12">
         <!-- Sección de imágenes que cambian automáticamente -->
-        <v-carousel>
+        <v-carousel v-model="carouselModel">
           <!-- Agrega más imágenes si es necesario -->
           <v-carousel-item
             v-for="(image, index) in images"
@@ -70,9 +70,16 @@ export default {
       images: [
         require('@/assets/burger1.jpg'),
         require('@/assets/perro1.jpg'),
-        require('@/assets/burger1.jpg'),
+        require('@/assets/pincho1.jpg'),
       ],
+      carouselModel: 0, // Inicializa el modelo del carrusel en 0 (primera imagen)
     };
+  },
+  mounted() {
+    // Configura un temporizador para cambiar automáticamente las imágenes cada 5 segundos
+    setInterval(() => {
+      this.carouselModel = (this.carouselModel + 1) % this.images.length;
+    }, 5000); // 5000 ms = 5 segundos
   },
 };
 </script>
