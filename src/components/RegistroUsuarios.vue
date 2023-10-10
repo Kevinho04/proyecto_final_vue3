@@ -2,7 +2,7 @@
     <v-data-table
       :headers="headers"
       :items="desserts"
-      :sort-by="[{ key: 'calories', order: 'asc' }]"
+      :sort-by="[{ key: 'numeroDocumento', order: 'asc' }]"
       class="elevation-1"
     >
       <template v-slot:top>
@@ -43,9 +43,21 @@
                       sm="6"
                       md="4"
                     >
+                    <v-select
+                      v-model="tipoDocumento"
+                      :items="tiposDocumento"
+                      label="Tipo de Documento"
+                      required>
+                    </v-select>
+                    </v-col>
+                    <v-col
+                      cols="12"
+                      sm="6"
+                      md="4"
+                    >
                       <v-text-field
-                        v-model="editedItem.name"
-                        label="Dessert name"
+                        v-model="editedItem.numeroDocumento"
+                        label="Numero de Documento"
                       ></v-text-field>
                     </v-col>
                     <v-col
@@ -54,8 +66,8 @@
                       md="4"
                     >
                       <v-text-field
-                        v-model="editedItem.calories"
-                        label="Calories"
+                        v-model="editedItem.nombre"
+                        label="Nombre"
                       ></v-text-field>
                     </v-col>
                     <v-col
@@ -64,8 +76,8 @@
                       md="4"
                     >
                       <v-text-field
-                        v-model="editedItem.fat"
-                        label="Fat (g)"
+                        v-model="editedItem.apellidos"
+                        label="Apellidos"
                       ></v-text-field>
                     </v-col>
                     <v-col
@@ -74,8 +86,8 @@
                       md="4"
                     >
                       <v-text-field
-                        v-model="editedItem.carbs"
-                        label="Carbs (g)"
+                        v-model="editedItem.telefono"
+                        label="Telefono"
                       ></v-text-field>
                     </v-col>
                     <v-col
@@ -84,8 +96,18 @@
                       md="4"
                     >
                       <v-text-field
-                        v-model="editedItem.protein"
-                        label="Protein (g)"
+                        v-model="editedItem.correo"
+                        label="Correo"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col
+                      cols="12"
+                      sm="6"
+                      md="4"
+                    >
+                      <v-text-field
+                        v-model="editedItem.direccion"
+                        label="Direccion"
                       ></v-text-field>
                     </v-col>
                   </v-row>
@@ -140,50 +162,55 @@
         </v-icon>
       </template>
       <template v-slot:no-data>
-        <v-btn
-          color="primary"
-          @click="initialize"
-        >
-          Reset
-        </v-btn>
+        <v-progress-linear
+        indeterminate
+        color="red-lighten-5">
+
+        </v-progress-linear>
       </template>
     </v-data-table>
   </template>
   <script>
+  import db from '@/firebase/init'
+  import { collection, getDocs, query, addDoc } from 'firebase/firestore'
     export default {
       data: () => ({
         dialog: false,
+        tiposDocumento: ["Cédula de Ciudadanía", "Pasaporte", "Cédula de Extranjería"],
         dialogDelete: false,
         headers: [
           {
-            title: 'ID',
+            title: 'N.Documento',
             align: 'start',
-            sortable: false,
-            key: 'idusuario',
+            key: 'numeroDocumento',
           },
-          { title: 'Nombre', key: 'nombreusuario' },
-          { title: 'Apellidos', key: 'apellidosusuario' },
-          { title: 'Tipo de Documento', key: 'tipodocumentousuario' },
-          { title: 'Numero de Documento', key: 'documentousuario' },
-          { title: 'Telefono', key: 'telefonousuario' },
-          { title: 'Correo', key: 'correousuario' },
-          { title: 'Dirección', key: 'direccionusuario' },
+          { title: 'Nombre', key: 'nombre' },
+          { title: 'Apellidos', key: 'apellidos' },
+          { title: 'Telefono', key: 'telefono' },
+          { title: 'Correo', key: 'correo',sortable: false,},
+          { title: 'Dirección', key: 'direccion',sortable: false,},
         ],
         desserts: [],
         editedIndex: -1,
         editedItem: {
-          name: '',
-          calories: 0,
-          fat: 0,
-          carbs: 0,
-          protein: 0,
+          keyid:0,
+          tipoDocumento:'',
+          numeroDocumento:0,
+          nombre: '',
+          apellidos: '',
+          telefono: 0,
+          correo:'',
+          direccion:'',
         },
         defaultItem: {
-          name: '',
-          calories: 0,
-          fat: 0,
-          carbs: 0,
-          protein: 0,
+          keyid:0,
+          tipoDocumento:'',
+          numeroDocumento:0,
+          nombre: '',
+          apellidos: '',
+          telefono: 0,
+          correo:'',
+          direccion:'',
         },
       }),
   
@@ -203,84 +230,38 @@
       },
   
       created () {
-        this.initialize()
+        this.listar()
       },
   
       methods: {
-        initialize () {
-          this.desserts = [
-            {
-              name: 'Frozen Yogurt',
-              calories: 159,
-              fat: 6.0,
-              carbs: 24,
-              protein: 4.0,
-            },
-            {
-              name: 'Ice cream sandwich',
-              calories: 237,
-              fat: 9.0,
-              carbs: 37,
-              protein: 4.3,
-            },
-            {
-              name: 'Eclair',
-              calories: 262,
-              fat: 16.0,
-              carbs: 23,
-              protein: 6.0,
-            },
-            {
-              name: 'Cupcake',
-              calories: 305,
-              fat: 3.7,
-              carbs: 67,
-              protein: 4.3,
-            },
-            {
-              name: 'Gingerbread',
-              calories: 356,
-              fat: 16.0,
-              carbs: 49,
-              protein: 3.9,
-            },
-            {
-              name: 'Jelly bean',
-              calories: 375,
-              fat: 0.0,
-              carbs: 94,
-              protein: 0.0,
-            },
-            {
-              name: 'Lollipop',
-              calories: 392,
-              fat: 0.2,
-              carbs: 98,
-              protein: 0,
-            },
-            {
-              name: 'Honeycomb',
-              calories: 408,
-              fat: 3.2,
-              carbs: 87,
-              protein: 6.5,
-            },
-            {
-              name: 'Donut',
-              calories: 452,
-              fat: 25.0,
-              carbs: 51,
-              protein: 4.9,
-            },
-            {
-              name: 'KitKat',
-              calories: 518,
-              fat: 26.0,
-              carbs: 65,
-              protein: 7,
-            },
-          ]
+        async listar(){
+          const q = query(collection(db,'Usuarios'))
+          const result = await getDocs(q)
+          result.forEach((doc)=>{
+            this.desserts.push({
+            keyid:doc.id,
+            numeroDocumento:doc.data().numeroDocumento,
+            nombre:doc.data().nombre,
+            apellidos:doc.data().apellidos,
+            telefono:doc.data().telefono,
+            correo:doc.data().correo,
+            direccion:doc.data().direccion,
+          })
+          })
         },
+        async agregarUsuario(){
+      const ref = collection(db,'Usuarios');
+      const datosRegistro = {
+        nombre: this.editedItem.nombre,
+        apellidos: this.editedItem.apellidos,
+        tipoDocumento: this.editedItem.tipoDocumento,
+        numeroDocumento: this.editedItem.numeroDocumento,
+        telefono: this.editedItem.telefono,
+        correo: this.editedItem.correo,
+        direccion: this.editedItem.direccion,
+    }
+    await addDoc(ref,datosRegistro)
+},
   
         editItem (item) {
           this.editedIndex = this.desserts.indexOf(item)
@@ -318,8 +299,10 @@
         save () {
           if (this.editedIndex > -1) {
             Object.assign(this.desserts[this.editedIndex], this.editedItem)
+            
           } else {
             this.desserts.push(this.editedItem)
+            this.agregarUsuario()
           }
           this.close()
         },

@@ -21,8 +21,8 @@
           <v-text>¿Aún no tienes cuenta?</v-text>
           <router-link to="/registro">Regístrate</router-link>
   
-          <v-btn type="submit" block class="mt-4" color="gradient">
-            Submit
+          <v-btn @click="LogIn()" type="submit" block class="mt-4" color="gradient">
+            Iniciar
           </v-btn>
         </v-form>
       </v-card>
@@ -30,8 +30,11 @@
   </template>
   
   <script>
+  import db from '@/firebase/init';
+  import { collection,getDocs,query } from 'firebase/firestore';
   export default {
     data: () => ({
+      usuarios:[],
       username: '',
       usernameRules: [
         value => !!value || 'Ingrese un nombre de usuario',
@@ -50,6 +53,22 @@
       togglePasswordVisibility() {
         this.showPassword = !this.showPassword;
       },
+      async LogIn(){
+        const q = query(collection(db,'Usuarios'))
+          const result = await getDocs(q)
+          result.forEach((doc)=>{
+            this.usuarios.push({
+            keyid:doc.id,
+            usuario:doc.data().usuario,
+            pass:doc.data().password,
+          })
+          })
+          const vUsuario = this.usuarios.find((usuario)=>usuario.usuario === this.username && usuario.pass === this.password)
+          if (vUsuario){
+            alert("Ha ingresado")
+            this.$router.push({path:'/menu'})
+          }
+      }
     },
   };
   </script>

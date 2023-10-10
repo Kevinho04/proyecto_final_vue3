@@ -9,7 +9,14 @@
           <v-text-field v-model="apellidos" label="Apellidos"></v-text-field>
         </v-col>
       </v-row>
-
+      <v-row>
+        <v-col cols="12" md="6">
+          <v-text-field v-model="usuario" label="Usuario"></v-text-field>
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-text-field v-model="password" label="Contraseña" type="password"></v-text-field>
+        </v-col>
+      </v-row>
       <v-row>
         <v-col cols="12" md="6">
           <v-select
@@ -41,7 +48,7 @@
 
       <v-row>
         <v-col cols="12">
-          <v-btn @click="enviarFormulario" color="primary">Registrar</v-btn>
+          <v-btn @click="agregarUsuario()" color="primary">Registrar</v-btn>
         </v-col>
       </v-row>
     </v-container>
@@ -49,8 +56,8 @@
 </template>
 
 <script>
-import firebase from 'firebase/app';
-import 'firebase/firestore';
+import db from '@/firebase/init';
+import { addDoc,collection } from 'firebase/firestore';
 
 export default {
   data() {
@@ -63,18 +70,19 @@ export default {
       telefono: "",
       correo: "",
       direccion: "",
+      usuario:'',
+      password:'',
     };
   },
   methods: {
     enviarFormulario() {
-      // Valida que los campos de entrada no estén vacíos
       if (this.nombre === "" || this.apellidos === "" || this.tipoDocumento === null || this.numeroDocumento === "" || this.telefono === "" || this.correo === "" || this.direccion === "") {
         alert("Por favor, complete todos los campos.");
         return;
       }
-
-      // Accede a la colección de Firestore donde deseas almacenar los datos
-      const db = firebase.firestore();
+      },
+      async agregarUsuario(){
+      const ref = collection(db,'Usuarios');
       const datosRegistro = {
         nombre: this.nombre,
         apellidos: this.apellidos,
@@ -83,18 +91,11 @@ export default {
         telefono: this.telefono,
         correo: this.correo,
         direccion: this.direccion,
-      };
-
-      // Agrega los datos a Firestore
-      db.collection('registros').add(datosRegistro)
-        .then(() => {
-          console.log('Datos registrados correctamente');
-          // Puedes redirigir al usuario a otra página aquí si es necesario
-        })
-        .catch(error => {
-          console.error('Error al registrar los datos:', error);
-        });
-    },
+        usuario:this.usuario,
+        password:this.password,
+    }
+    await addDoc(ref,datosRegistro)
+},
   },
-};
+}
 </script>

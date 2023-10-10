@@ -29,26 +29,27 @@
               <!-- Agrega platos destacados con imágenes, nombres, descripciones y precios -->
               <v-list-item>
                 <v-list-item-avatar>
-                  <v-img src="@/assets/Burger3.png" max-width="200" max-height="200"></v-img>
+                  <v-img src="@/assets/PlatoDestacado1.jpeg" max-width="2000" max-height="500" class="justify-center"></v-img>
                 </v-list-item-avatar>
                 <v-list-item-content>
                   <v-list-item-title>Burger Fusion</v-list-item-title>
                   <v-list-item-subtitle>Pan parmesano, carne 130gr, mix de quesos, papita crunch, filete de pechuga 100gr, tocineta, chorizo ahumado, vegetales frescos, acompañado de papas a la francesa.</v-list-item-subtitle>
+                  <span class="font-weight-bold">$13000</span>
                 </v-list-item-content>
                 <v-list-item-action>
-                  <span class="font-weight-bold">$13000</span>
+
                 </v-list-item-action>
               </v-list-item>
               <v-list-item>
                 <v-list-item-avatar>
-                  <v-img src="@/assets/Burger3.png" max-width="200" max-height="200"></v-img>
+                  <v-img src="@/assets/PlatoDestacado2.jpeg" max-width="2000" max-height="500"></v-img>
                 </v-list-item-avatar>
                 <v-list-item-content>
                   <v-list-item-title>Burger Monster</v-list-item-title>
                   <v-list-item-subtitle>Pan parmesano, doble carne 260gr, mix de quesos, papita crunch, doble tocineta, vegetales frescos, acompañado de papas a la francesa.</v-list-item-subtitle>
+                  <span class="font-weight-bold">$24000</span>
                 </v-list-item-content>
                 <v-list-item-action>
-                  <span class="font-weight-bold">$24000</span>
                 </v-list-item-action>
               </v-list-item>
               <!-- Agrega más platos destacados aquí -->
@@ -68,9 +69,9 @@ export default {
   data() {
     return {
       images: [
-        require('@/assets/burger1.jpg'),
-        require('@/assets/perro1.jpg'),
-        require('@/assets/pincho1.jpg'),
+        require('@/assets/burguer1inicio.jpeg'),
+        require('@/assets/burguer2inicio.jpeg'),
+        require('@/assets/perro1inicio.jpeg'),
       ],
       carouselModel: 0, // Inicializa el modelo del carrusel en 0 (primera imagen)
     };
@@ -79,7 +80,7 @@ export default {
     // Configura un temporizador para cambiar automáticamente las imágenes cada 5 segundos
     setInterval(() => {
       this.carouselModel = (this.carouselModel + 1) % this.images.length;
-    }, 5000); // 5000 ms = 5 segundos
+    }, 4000); // 5000 ms = 5 segundos
   },
 };
 </script>
