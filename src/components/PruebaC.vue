@@ -53,7 +53,7 @@
           <router-link @click="showPop=false" to="/registro">Regístrate</router-link>
   
           <v-btn @click="LogIn()" type="submit" block class="mt-4" color="gradient">
-            Iniciar
+            Ingresar
           </v-btn>
         </v-form>
         </v-card>

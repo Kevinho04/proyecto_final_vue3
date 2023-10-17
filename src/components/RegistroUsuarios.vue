@@ -121,14 +121,14 @@
                   variant="text"
                   @click="close"
                 >
-                  Cancel
+                  Cancelar
                 </v-btn>
                 <v-btn
                   color="blue-darken-1"
                   variant="text"
                   @click="save"
                 >
-                  Save
+                  Guardar
                 </v-btn>
               </v-card-actions>
             </v-card>
