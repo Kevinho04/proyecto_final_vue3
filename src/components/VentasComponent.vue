@@ -1,73 +1,129 @@
 <template>
-  <div>
-    <v-data-table
-      :headers="headers"
-      :items="desserts"
-      :sort-by="[{ key: 'nombrebd', order: 'asc' }]"
-      class="elevation-1"
-    >
-    <template v-slot:actions="{ item }">
-        <v-icon size="small" class="me-2" @click="editItem(item)">
-          mdi-pencil
-        </v-icon>
-        <v-icon size="small" @click="deleteItem(item)">mdi-delete</v-icon>
-      </template>
-    </v-data-table>
+  <v-data-table
+    :headers="headers"
+    :items="desserts"
+    :sort-by="[{ key: 'nombre', order: 'asc' }]"
+    class="elevation-1"
+  >
+    <template v-slot:top>
+      <v-toolbar flat>
+        <v-toolbar-title>Pedidos</v-toolbar-title>
+        <v-divider class="mx-4" inset vertical></v-divider>
+        <v-spacer></v-spacer>
+        <v-dialog v-model="dialog" max-width="500px">
+          <template v-slot:activator="{ props }">
+            <v-btn color="primary" dark class="mb-2" v-bind="props">
+              Nuevo Pedido
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">{{ formTitle }}</span>
+            </v-card-title>
 
-    <v-btn color="deep-orange-accent-3" dark class="mb-2" @click="imprimirTablaPDF">
-      Exportar como PDF
-    </v-btn>
-  </div>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="editedItem.nombre" label="Nombre"></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="editedItem.apellidos" label="Apellidos"></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="editedItem.telefono" label="Telefono"></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="editedItem.direccion" label="Direccion"></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-file-input v-model="editedItem.comprobantePago" label="Comprobante de Pago" accept="image/*"></v-file-input>
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="editedItem.pedido" label="Pedido"></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="editedItem.valorTotal" label="Valor Total"></v-text-field>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue-darken-1" variant="text" @click="close">Cancelar</v-btn>
+              <v-btn color="blue-darken-1" variant="text" @click="save">Guardar</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-dialog v-model="dialogDelete" max-width="500px">
+          <v-card>
+            <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Cancel</v-btn>
+              <v-btn color="blue-darken-1" variant="text" @click="deleteItemConfirm">OK</v-btn>
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-toolbar>
+    </template>
+    <template v-slot:actions="{ item }">
+      <v-icon size="small" class="me-2" @click="editItem(item)">
+        mdi-pencil
+      </v-icon>
+      <v-icon size="small" @click="deleteItem(item)">
+        mdi-delete
+      </v-icon>
+    </template>
+    <template v-slot:no-data>
+      <v-progress-linear indeterminate color="red-lighten-5"></v-progress-linear>
+    </template>
+  </v-data-table>
 </template>
 
 <script>
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import db from '@/firebase/init';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
 
 export default {
   data: () => ({
     dialog: false,
-    dialogDelete: false,
     headers: [
-      {
-        title: 'ID',
-        align: 'start',
-        sortable: false,
-        key: 'id',
-      },
-      { title: 'Nombre', key: 'nombrebd' },
-      { title: 'Apellidos', key: 'apellidobd' },
-      { title: 'Telefono', key: 'telefonobd' },
-      { title: 'Correo Electronico', key: 'correobd' },
-      { title: 'Pedido', key: 'pedidobd' },
-      { title: 'Valor Total', key: 'valortotalbd' },
-      { title: 'Actions', key: 'actions', sortable: false },
+      { title: 'Nombre', key: 'nombre' },
+      { title: 'Apellidos', key: 'apellidos' },
+      { title: 'Teléfono', key: 'telefono' },
+      { title: 'Dirección', key: 'direccion' },
+      { title: 'Comprobante de Pago', key: 'comprobantePago' },
+      { title: 'Pedido', key: 'pedido' },
+      { title: 'Valor Total', key: 'valorTotal' },
     ],
     desserts: [],
     editedIndex: -1,
     editedItem: {
-      id: '',
-      nombrebd: '',
-      apellidobd: '',
-      telefonobd: '',
-      correobd: '',
-      pedidobd: '',
-      valortotalbd: '',
+      nombre: '',
+      apellidos: '',
+      telefono: 0,
+      direccion: '',
+      comprobantePago: null,
+      pedido: '',
+      valorTotal: 0,
     },
     defaultItem: {
-      id: '',
-      nombrebd: '',
-      apellidobd: '',
-      telefonobd: '',
-      correobd: '',
-      pedidobd: '',
-      valortotalbd: '',
+      nombre: '',
+      apellidos: '',
+      telefono: 0,
+      direccion: '',
+      comprobantePago: null,
+      pedido: '',
+      valorTotal: 0,
     },
   }),
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? 'Nuevo Usuario' : 'Editar Usuario';
+      return this.editedIndex === -1 ? 'New Item' : 'Edit Item';
     },
   },
 
@@ -81,114 +137,50 @@ export default {
   },
 
   created() {
-    this.initialize();
+    this.listar();
   },
 
   methods: {
-    initialize() {
-      this.desserts = [
-      {
-            id: 1,
-            nombrebd: 'Kevin',
-            apellidobd: 'Ardila',
-            telefonobd: 3213246555,
-            correobd: 'kevinard04@gmail.com',
-            pedidobd:'Burger 1, Burguer 2.',
-            valortotalbd:'35.000'
-          },
-          {
-            id: 2,
-            nombrebd: 'Juan',
-            apellidobd: 'Bernal',
-            telefonobd: 31281146555,
-            correobd: 'JuanBa3r@gmail.com',
-            pedidobd:'Burger 1, Burguer 2.',
-            valortotalbd:'35.000'
-          },
-          {
-            id: 3,
-            nombrebd: 'Andres',
-            apellidobd: 'Peralta',
-            telefonobd: 3153246415,
-            correobd: 'AndresP@gmail.com',
-            pedidobd:'Burger 1, Burguer 2.',
-            valortotalbd:'35.000'
-          },
-          {
-            id: 4,
-            nombrebd: 'Pedro',
-            apellidobd: 'Sanchez',
-            telefonobd: 3503246555,
-            correobd: 'PedroP@gmail.com',
-            pedidobd:'Burger 1, Burguer 2.',
-            valortotalbd:'35.000'
-          },
-          {
-            id: 5,
-            nombrebd: 'Armando',
-            apellidobd: 'Lopez',
-            telefonobd: 3033246555,
-            correobd: 'ArmandoLpz@gmail.com',
-            pedidobd:'Burger 1, Burguer 2.',
-            valortotalbd:'35.000'
-          },
-          {
-            id: 6,
-            nombrebd: 'Monica',
-            apellidobd: 'Perez',
-            telefonobd: 3113246555,
-            correobd: 'Monicaprz@gmail.com',
-            pedidobd:'Burger 1, Burguer 2.',
-            valortotalbd:'35.000'
-          },
-          {
-            id: 7,
-            nombrebd: 'Marcelo',
-            apellidobd: 'Tinelli',
-            telefonobd: 3223246555,
-            correobd: 'MarcTinell@gmail.com',
-            pedidobd:'Burger 1, Burguer 2.',
-            valortotalbd:'35.000'
-          },
-          {
-            id: 8,
-            nombrebd: 'Dayro',
-            apellidobd: 'Moreno',
-            telefonobd: 3213246555,
-            correobd: 'Guarosk@gmail.com',
-            pedidobd:'Burger 1, Burguer 2.',
-            valortotalbd:'35.000'
-          },
-          {
-            id: 9,
-            nombrebd: 'Mario',
-            apellidobd: 'Hernandez',
-            telefonobd: 3243246555,
-            correobd: 'MarioH@gmail.com',
-            pedidobd:'Burger 1, Burguer 2.',
-            valortotalbd:'35.000'
-          },
-          {
-            id: 10,
-            nombrebd: 'John',
-            apellidobd: 'Perez',
-            telefonobd: 3283246555,
-            correobd: 'JohnPrz@gmail.com',
-            pedidobd:'Burger 1, Burguer 2.',
-            valortotalbd:'35.000'
-          },
-    ]
+    async listar() {
+      const q = collection(db, 'Pedidos');
+      const result = await getDocs(q);
+      result.forEach((doc) => {
+        this.desserts.push({
+          nombre: doc.data().nombre,
+          apellidos: doc.data().apellidos,
+          telefono: doc.data().telefono,
+          direccion: doc.data().direccion,
+          comprobantePago: doc.data().comprobantePago,
+          pedido: doc.data().pedido,
+          valorTotal: doc.data().valorTotal,
+        });
+      });
+    },
+
+    async agregarUsuario() {
+      const ref = collection(db, 'Pedidos');
+      const datosRegistro = {
+        nombre: this.editedItem.nombre,
+        apellidos: this.editedItem.apellidos,
+        telefono: this.editedItem.telefono,
+        direccion: this.editedItem.direccion,
+        comprobantePago: this.editedItem.comprobantePago,
+        pedido: this.editedItem.pedido,
+        valorTotal: this.editedItem.valorTotal,
+      };
+      await addDoc(ref, datosRegistro);
     },
 
     editItem(item) {
       this.editedIndex = this.desserts.indexOf(item);
-      this.editedItem = Object.assign({}, item);
+      this.editedItem = { ...item };
       this.dialog = true;
+      this.$refs.comprobantePago.reset();
     },
 
     deleteItem(item) {
       this.editedIndex = this.desserts.indexOf(item);
-      this.editedItem = Object.assign({}, item);
+      this.editedItem = { ...item };
       this.dialogDelete = true;
     },
 
@@ -200,7 +192,7 @@ export default {
     close() {
       this.dialog = false;
       this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedItem = { ...this.defaultItem };
         this.editedIndex = -1;
       });
     },
@@ -208,7 +200,7 @@ export default {
     closeDelete() {
       this.dialogDelete = false;
       this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedItem = { ...this.defaultItem };
         this.editedIndex = -1;
       });
     },
@@ -218,46 +210,10 @@ export default {
         Object.assign(this.desserts[this.editedIndex], this.editedItem);
       } else {
         this.desserts.push(this.editedItem);
+        this.agregarUsuario();
       }
       this.close();
-    },
-
-    imprimirTablaPDF() {
-      const columns = [
-        { title: 'ID', dataKey: 'id' },
-        { title: 'Nombre', dataKey: 'nombrebd' },
-        { title: 'Apellidos', dataKey: 'apellidobd' },
-        { title: 'Telefono', dataKey: 'telefonobd' },
-        { title: 'Correo Electronico', dataKey: 'correobd' },
-        { title: 'Pedido', dataKey: 'pedidobd' },
-        { title: 'Valor Total', dataKey: 'valortotalbd' },
-      ];
-
-      const registros = this.desserts.map((item) => ({
-        id: item.id.toString(),
-        nombrebd: item.nombrebd,
-        apellidobd: item.apellidobd,
-        telefonobd: item.telefonobd.toString(),
-        correobd: item.correobd,
-        pedidobd: item.pedidobd || '',
-        valortotalbd: item.valortotalbd || '',
-      }));
-
-      const doc = new jsPDF('p', 'pt');
-
-      doc.autoTable(columns, registros, {
-        margin: { top: 60 },
-        addPageContent: function () {
-          doc.text('PedidosUsuarios', 40, 30);
-        },
-      });
-
-      doc.save('PedidosUsuarios.pdf');
     },
   },
 };
 </script>
-
-<style scoped>
-/* Tus estilos aquí */
-</style>
