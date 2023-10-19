@@ -67,8 +67,12 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+        <v-btn color="deep-orange-accent-3" dark @click="imprimirTablaPDF">
+          Exportar como PDF
+        </v-btn>
       </v-toolbar>
     </template>
+
     <template v-slot:actions="{ item }">
       <v-icon size="small" class="me-2" @click="editItem(item)">
         mdi-pencil
@@ -77,6 +81,7 @@
         mdi-delete
       </v-icon>
     </template>
+
     <template v-slot:no-data>
       <v-progress-linear indeterminate color="red-lighten-5"></v-progress-linear>
     </template>
@@ -84,6 +89,8 @@
 </template>
 
 <script>
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import db from '@/firebase/init';
 import { collection, getDocs, addDoc } from 'firebase/firestore';
 
@@ -213,6 +220,39 @@ export default {
         this.agregarUsuario();
       }
       this.close();
+    },
+
+    imprimirTablaPDF() {
+      const columns = [
+        { title: 'Nombre', dataKey: 'nombre' },
+        { title: 'Apellidos', dataKey: 'apellidos' },
+        { title: 'Teléfono', dataKey: 'telefono' },
+        { title: 'Dirección', dataKey: 'direccion' },
+        { title: 'Comprobante de Pago', dataKey: 'comprobantePago' },
+        { title: 'Pedido', dataKey: 'pedido' },
+        { title: 'Valor Total', dataKey: 'valorTotal' },
+      ];
+
+      const registros = this.desserts.map((item) => ({
+        nombre: item.nombre,
+        apellidos: item.apellidos,
+        telefono: item.telefono.toString(),
+        direccion: item.direccion,
+        comprobantePago: item.comprobantePago || '',
+        pedido: item.pedido || '',
+        valorTotal: item.valorTotal.toString(),
+      }));
+
+      const doc = new jsPDF('p', 'pt');
+
+      doc.autoTable(columns, registros, {
+        margin: { top: 60 },
+        addPageContent: function () {
+          doc.text('Pedidos', 40, 30);
+        },
+      });
+
+      doc.save('Pedidos.pdf');
     },
   },
 };
